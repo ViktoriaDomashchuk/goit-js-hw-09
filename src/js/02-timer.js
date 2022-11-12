@@ -2,6 +2,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const refs = {
+  div: document.querySelector('.timer'),
   input: document.querySelector('#datetime-picker'),
   btn: document.querySelector('[data-start]'),
   dateDays: document.querySelector('[data-days]'),
@@ -9,8 +10,21 @@ const refs = {
   dateMinutes: document.querySelector('[data-minutes]'),
   dateSeconds: document.querySelector('[data-seconds]'),
 };
-console.log(refs.input);
-// refs.btn.addEventListener('click', onStart);
+
+// let timerId = null;
+
+// function countdownTimer() {
+//   const diff = convertMs(flatpickr);
+//   console.log(diff);
+//   if (diff <= 0) {
+//     clearInterval(timerId);
+//   }
+// }
+// timerId = setInterval(countdownTimer, 1000);
+
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
 
 flatpickr(refs.input, {
   enableTime: true,
@@ -21,13 +35,6 @@ flatpickr(refs.input, {
     console.log(selectedDates[0]);
   },
 });
-
-
-// const date = new Date();
-// if (refs.input.getTime() <= date.getTime()) {
-//   refs.btn.disabled = true;
-// }
-
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
