@@ -1,8 +1,8 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import { Notify } from 'notiflix';
 
 const refs = {
-  div: document.querySelector('.timer'),
   input: document.querySelector('#datetime-picker'),
   btn: document.querySelector('[data-start]'),
   dateDays: document.querySelector('[data-days]'),
@@ -11,30 +11,48 @@ const refs = {
   dateSeconds: document.querySelector('[data-seconds]'),
 };
 
-// let timerId = null;
+refs.btn.disabled = true;
 
-// function countdownTimer() {
-//   const diff = convertMs(flatpickr);
-//   console.log(diff);
-//   if (diff <= 0) {
-//     clearInterval(timerId);
-//   }
-// }
-// timerId = setInterval(countdownTimer, 1000);
-
-function addLeadingZero(value) {
-  return String(value).padStart(2, '0');
-}
-
-flatpickr(refs.input, {
+const options = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
+    const onChooseDate = selectedDates[0].getTime();
+    if (onChooseDate <= new Date().getTime()) {
+      Notify.failure('Please choose a date in the future');
+      return;
+    }
+
+    refs.btn.disabled = false;
+
+    refs.btn.addEventListener('click', () => {
+      refs.btn.disabled = true;
+      refs.input.disabled = true;
+
+      let timerId = null;
+      timerId = setInterval(() => {
+        let timerValue = convertMs(onChooseDate - Date.parse(new Date()));
+        refs.dateDays.textContent = addLeadingZero(timerValue.days);
+        refs.dateHours.textContent = addLeadingZero(timerValue.hours);
+        refs.dateMinutes.textContent = addLeadingZero(timerValue.minutes);
+        refs.dateSeconds.textContent = addLeadingZero(timerValue.seconds);
+
+        if (onChooseDate - Date.parse(new Date()) === 0) {
+          clearInterval(timerId);
+          Notify.success('Time is up');
+        }
+      }, 1000);
+    });
   },
-});
+};
+
+const flatPicker = flatpickr('#datetime-picker', options);
+
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
